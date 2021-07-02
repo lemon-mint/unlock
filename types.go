@@ -13,6 +13,7 @@ type node struct {
 type Queue struct {
 	head *node
 	tail *node
+	len  int64
 }
 
 func (q *Queue) EnQueue(x unsafe.Pointer) bool {
@@ -32,7 +33,11 @@ func (q *Queue) EnQueue(x unsafe.Pointer) bool {
 			break
 		}
 	}
-	return atomic.CompareAndSwapPointer((*unsafe.Pointer)(unsafe.Pointer(&q.tail)), unsafe.Pointer(tail), unsafe.Pointer(newNode))
+	casok := atomic.CompareAndSwapPointer((*unsafe.Pointer)(unsafe.Pointer(&q.tail)), unsafe.Pointer(tail), unsafe.Pointer(newNode))
+
+	atomic.AddInt64(&q.len, 1)
+
+	return casok
 }
 
 func (q *Queue) DeQueue() (unsafe.Pointer, bool) {
@@ -54,8 +59,13 @@ func (q *Queue) DeQueue() (unsafe.Pointer, bool) {
 		if !atomic.CompareAndSwapPointer((*unsafe.Pointer)(unsafe.Pointer(&q.head)), unsafe.Pointer(firstNode), unsafe.Pointer(nextNode)) {
 			continue
 		}
+		atomic.AddInt64(&q.len, -1)
 		return x, true
 	}
+}
+
+func (q Queue) Len() int64 {
+	return atomic.LoadInt64(&q.len)
 }
 
 func NewQueue() *Queue {
