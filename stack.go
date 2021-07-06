@@ -8,6 +8,7 @@ import (
 // Stack: Treiber's stack
 type Stack struct {
 	top *node
+	len int64
 }
 
 func NewStack() *Stack {
@@ -28,6 +29,7 @@ func (s *Stack) Push(x unsafe.Pointer) {
 			break
 		}
 	}
+	atomic.AddInt64(&s.len, 1)
 }
 
 func (s *Stack) Pop() (unsafe.Pointer, bool) {
@@ -47,5 +49,10 @@ func (s *Stack) Pop() (unsafe.Pointer, bool) {
 			break
 		}
 	}
+	atomic.AddInt64(&s.len, -1)
 	return x, true
+}
+
+func (s Stack) Len() int64 {
+	return s.len
 }
