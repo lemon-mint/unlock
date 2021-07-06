@@ -8,7 +8,7 @@ import (
 
 func TestLock_Lock(t *testing.T) {
 	var counter int
-	var l = new(Lock)
+	var l = new(TLock)
 	var wg sync.WaitGroup
 	for i := 0; i < 256; i++ {
 		wg.Add(1)
@@ -30,7 +30,7 @@ func TestLock_Lock(t *testing.T) {
 	})
 }
 
-var lock Lock
+var lock TLock
 var mu sync.Mutex
 
 func BenchmarkSpinLock(b *testing.B) {

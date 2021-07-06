@@ -5,12 +5,12 @@ import (
 	"sync/atomic"
 )
 
-type Lock struct {
+type TLock struct {
 	lock uint32
 }
 
 // Lock acquires the lock
-func (l *Lock) Lock() {
+func (l *TLock) Lock() {
 	for {
 		if l.TryLock() {
 			break // escape loop
@@ -21,11 +21,11 @@ func (l *Lock) Lock() {
 }
 
 // TryLock tries to acquire the lock
-func (l *Lock) TryLock() (locked bool) {
+func (l *TLock) TryLock() (locked bool) {
 	return atomic.CompareAndSwapUint32(&l.lock, 0, 1)
 }
 
 // Unlock releases the lock
-func (l *Lock) Unlock() {
+func (l *TLock) Unlock() {
 	atomic.StoreUint32(&l.lock, 0) // release lock
 }
