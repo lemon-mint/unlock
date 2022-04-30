@@ -7,17 +7,30 @@ import (
 )
 
 type RingBuffer struct {
-	buf     []unsafe.Pointer
-	size    int
-	r, w    int
-	counter int64
+	buf      []unsafe.Pointer
+	padding0 [8]uint64
+	size     int
+	padding1 [8]uint64
+	r        int
+	w        int
+	padding2 [8]uint64
+	counter  int64
+	padding3 [8]uint64
 	TLock
+}
+
+func (b *RingBuffer) dummy() {
+	_ = b.padding0
+	_ = b.padding1
+	_ = b.padding2
+	_ = b.padding3
 }
 
 func NewRingBuffer(size int) *RingBuffer {
 	r := new(RingBuffer)
 	r.buf = make([]unsafe.Pointer, size)
 	r.size = size
+	r.dummy()
 	return r
 }
 
